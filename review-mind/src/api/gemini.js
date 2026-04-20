@@ -49,7 +49,7 @@ const analyzeSingleBatch = async (texts, retryCount = 0) => {
 
   try {
     const response = await fetch(
-      `/api/gemini/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `/api/gemini/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,14 +58,15 @@ const analyzeSingleBatch = async (texts, retryCount = 0) => {
           contents: [{
             parts: [{
               text: `You are a world-class sentiment analyst. Analyze these reviews (English, Hindi, Hinglish). 
-Return a JSON array of ${texts.length} objects. 
+Return a JSON array of exactly ${texts.length} objects. 
 
-GUIDELINES:
+CRITICAL GUIDELINES:
 1. "Worst product 😡" MUST be [negative, anger]
 2. "I love this 😍" MUST be [positive, joy]
 3. "Acha item hai" MUST be [positive, joy]
 4. "Bakwas quality" MUST be [negative, disgust]
-5. Do NOT use "neutral" if there is even one emoji or emotive word.
+5. DO NOT DEFAULT TO NEUTRAL. Words like "best", "superb", "defective", "bad", "wore out", "small" carry strong sentiment.
+6. If a customer is unhappy about quality, "painPoint" MUST be "product quality".
 
 Fields:
 - "emotion": joy, anger, disgust, fear, sadness, surprise, neutral
@@ -75,7 +76,7 @@ Fields:
 - "location": city/country OR "unknown"
 - "isBot": boolean
 
-Reviews:
+Reviews to analyze:
 ${numbered}`
             }]
           }]
@@ -91,7 +92,8 @@ ${numbered}`
     }
 
     if (!response.ok) {
-      console.error(`Gemini Batch Failed after ${MAX_RETRIES} retries. Status: ${response.status}. Filling with neutral data.`);
+      const errBody = await response.text();
+      console.error(`Gemini API Error: Status ${response.status}. Body: ${errBody}`);
       return texts.map(() => ({
         emotion: 'neutral',
         sentiment: 'neutral',

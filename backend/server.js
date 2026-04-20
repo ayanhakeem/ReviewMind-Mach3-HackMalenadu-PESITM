@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 // ─── Gemini Proxy ────────────────────────────────────────────────────────────
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 app.post('/api/gemini-analyze', async (req, res) => {
   try {
@@ -37,17 +37,21 @@ app.post('/api/gemini-analyze', async (req, res) => {
         generationConfig: { temperature: 0, maxOutputTokens: 8192 },
         contents: [{
           parts: [{
-            text: `You are a review analysis engine. Analyze each review below and return ONLY a valid JSON array. No markdown, no explanation, JSON only.
+            text: `You are a world-class review analysis engine. Analyze each review below and return ONLY a valid JSON array.
+Return exactly ${texts.length} objects.
 
-For each review return an object with exactly these fields:
+CRITICAL GUIDELINES:
+1. DO NOT DEFAULT TO NEUTRAL. Words like "best", "superab", "defective", "bad", "wore out", "small" carry strong sentiment.
+2. Emotional cues like "Loved it" or "pathethic" MUST be classified as joy/anger/disgust.
+3. If a customer is unhappy about parts/build, "painPoint" MUST be "product quality".
+
+Fields:
 - "emotion": one of: joy, anger, disgust, fear, sadness, surprise, neutral
 - "sentiment": one of: positive, negative, neutral
 - "painPoint": one of: product quality, delivery issue, packaging problem, customer service, pricing, none
 
 Reviews to analyze:
-${numbered}
-
-Return exactly ${texts.length} objects in the array, in the same order.`
+${numbered}`
           }]
         }]
       })
@@ -58,6 +62,7 @@ Return exactly ${texts.length} objects in the array, in the same order.`
     }
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();
+      console.error(`Gemini API Error: Status ${geminiRes.status}. Body: ${errText}`);
       return res.status(geminiRes.status).json({ error: `Gemini error: ${errText}` });
     }
 
