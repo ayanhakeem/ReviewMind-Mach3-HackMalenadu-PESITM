@@ -103,5 +103,3 @@ npm run dev
 ## 🤝 Developed by Team Mach 3
 *Finalist Submission for Hackathon 2026*
 
-**Project Root**: `C:\Users\Basavaraj VG\Desktop\review_mind`
-**Repository**: [manthaaaaan/hackmalendadufinal](https://github.com/manthaaaaan/hackmalendadufinal)
