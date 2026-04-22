@@ -80,7 +80,7 @@ graph TD
 - API Keys for Google Gemini, Groq, and Hugging Face.
 
 ### 2. Environment Setup
-Create a `.env` file in both `backend` and `review-mind` folders using the provided `.env.example` templates.
+Create a `.env` file in both `backend` and `fronted` folders using the provided `.env.example` templates.
 
 ### 3. Installation
 ```bash
